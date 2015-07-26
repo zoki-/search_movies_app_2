@@ -1,11 +1,9 @@
 package com.zoranbogdanovski.searchmoviesapp.ui;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -30,7 +28,11 @@ import com.zoranbogdanovski.searchmoviesapp.util.NetworkUtils;
 
 import java.util.List;
 
-public class MovieSearchActivity extends Activity {
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+
+@ContentView(R.layout.activity_movie_search)
+public class MovieSearchActivity extends RoboActivity {
 
     private static final String SEARCH_FRAGMENT_TAG = "search_fragment_tag";
 
@@ -69,12 +71,6 @@ public class MovieSearchActivity extends Activity {
                         startActivity(intent);
                     }
                 });
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_search);
     }
 
     @Override
