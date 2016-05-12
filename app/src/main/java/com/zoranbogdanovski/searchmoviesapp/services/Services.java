@@ -47,31 +47,24 @@ public class Services {
     /**
      * Get configuration service.
      *
-     * @param onParsedResponseListener the listener when response arrives and is parsed
+     * @param onServiceCallFinishedListener the listener when response arrives and is parsed
      */
-    public void startGetConfiguration(final IParsedResponseListener onParsedResponseListener) {
+    public void startGetConfiguration(final IServiceCallFinishedListener onServiceCallFinishedListener) {
         String url = createUrl("/configuration");
-        ServiceExecutor executor = new ServiceExecutor(url,
-                new IServiceCallFinishedListener() {
+        ServiceExecutor<Configuration> executor = new ServiceExecutor<>(url,
+                onServiceCallFinishedListener);
 
-                    @Override
-                    public void onServiceFinished(String response) {
-                        Configuration configuration = gson.fromJson(response, Configuration.class);
-                        onParsedResponseListener.onParsedResponseFinished(configuration);
-                    }
-                });
-
-        executor.executeService();
+        executor.executeService(Configuration.class);
     }
 
     /**
      * Get search movies result.
      *
      * @param query                    the query to search
-     * @param onParsedResponseListener the listener when response arrives and is parsed
+     * @param onServiceCallFinishedListener the listener when response arrives and is parsed
      */
     public void startGetMoviesSearchResult(String query,
-                                           final IParsedResponseListener onParsedResponseListener) {
+                                           final IServiceCallFinishedListener onServiceCallFinishedListener) {
         String encodedQuery = "";
         try {
             encodedQuery = URLEncoder.encode(query, "utf-8");
@@ -80,37 +73,23 @@ public class Services {
         }
         String url = createUrl("/search/movie", "&query=" + encodedQuery);
         ServiceExecutor executor = new ServiceExecutor(url,
-                new IServiceCallFinishedListener() {
+                onServiceCallFinishedListener);
 
-                    @Override
-                    public void onServiceFinished(String response) {
-                        SearchResult searchResult = gson.fromJson(response, SearchResult.class);
-                        onParsedResponseListener.onParsedResponseFinished(searchResult);
-                    }
-                });
-
-        executor.executeService();
+        executor.executeService(SearchResult.class);
     }
 
     /**
      * Get specified movie information.
      *
      * @param movieId                  the movie id
-     * @param onParsedResponseListener the listener when response arrives and is parsed
+     * @param onServiceCallFinishedListener the listener when response arrives and is parsed
      */
     public void startGetMovieInfo(String movieId,
-                                  final IParsedResponseListener onParsedResponseListener) {
+                                  final IServiceCallFinishedListener onServiceCallFinishedListener) {
         String url = createUrl("/movie/" + movieId);
         ServiceExecutor executor = new ServiceExecutor(url,
-                new IServiceCallFinishedListener() {
+                onServiceCallFinishedListener);
 
-                    @Override
-                    public void onServiceFinished(String response) {
-                        Movie movie = gson.fromJson(response, Movie.class);
-                        onParsedResponseListener.onParsedResponseFinished(movie);
-                    }
-                });
-
-        executor.executeService();
+        executor.executeService(Movie.class);
     }
 }

@@ -3,6 +3,10 @@ package com.zoranbogdanovski.searchmoviesapp.services;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.zoranbogdanovski.searchmoviesapp.model.configuration.Configuration;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,11 +19,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
- * An async task executor for a executing a service call.
+ * An async executor for a executing a service call.
  */
-public class ServiceExecutor {
+public class ServiceExecutor<T> {
 
     private static final String LOG_TAG = ServiceExecutor.class.toString();
+    private final Gson gson;
     private String serviceUrl;
     private IServiceCallFinishedListener serviceCallFinishedListener;
 
@@ -31,32 +36,44 @@ public class ServiceExecutor {
      */
     public ServiceExecutor(String serviceUrl,
                            IServiceCallFinishedListener serviceCallFinishedListener) {
+        this.gson = new GsonBuilder().serializeNulls().create();
         this.serviceUrl = serviceUrl;
         this.serviceCallFinishedListener = serviceCallFinishedListener;
     }
 
 
-    public void executeService() {
+    public void executeService(final Class<T> parsingClass) {
         Log.v(LOG_TAG, "executeService called for url: " + serviceUrl);
-        Observable.OnSubscribe<String> onSubscribe = new Observable.OnSubscribe<String>() {
+
+        Observable.OnSubscribe<T> onSubscribe = new Observable.OnSubscribe<T>() {
             @Override
-            public void call(Subscriber<? super String> subscriber) {
+            public void call(Subscriber<? super T> subscriber) {
+                boolean unsubscribed = subscriber.isUnsubscribed();
                 try {
-                    String response = execute();
-                    subscriber.onNext(response);
+                    if (unsubscribed) {
+                        return;
+                    }
+                    String response = executeServiceCall();
+                    T parsedObject = gson.fromJson(response, parsingClass);
+                    subscriber.onNext(parsedObject);
                 } catch (Exception e) {
                     Log.e(LOG_TAG, "Error while executing service call for url:"
                             + serviceUrl, e);
-                    subscriber.onError(e);
+                    if (!unsubscribed) {
+                        subscriber.onError(e);
+                    }
                 }
-                subscriber.onCompleted();
+
+                if (!unsubscribed) {
+                    subscriber.onCompleted();
+                }
             }
         };
 
         Observable.create(onSubscribe)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<String>() {
+                .subscribe(new Subscriber<T>() {
                     @Override
                     public void onCompleted() {
                         // do nothing
@@ -69,14 +86,14 @@ public class ServiceExecutor {
                     }
 
                     @Override
-                    public void onNext(String s) {
+                    public void onNext(T s) {
                         serviceCallFinishedListener.onServiceFinished(s);
                     }
                 });
     }
 
     @NonNull
-    private String execute() throws IOException {
+    private String executeServiceCall() throws IOException {
         URL url = new URL(serviceUrl);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {

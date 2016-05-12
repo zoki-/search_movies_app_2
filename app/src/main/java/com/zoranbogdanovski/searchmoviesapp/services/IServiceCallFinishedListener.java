@@ -3,8 +3,8 @@ package com.zoranbogdanovski.searchmoviesapp.services;
 /**
  * Interface for service call finished listeners.
  */
-public interface IServiceCallFinishedListener {
+public interface IServiceCallFinishedListener<T> {
 
-    void onServiceFinished(String response);
+    void onServiceFinished(T response);
 
 }

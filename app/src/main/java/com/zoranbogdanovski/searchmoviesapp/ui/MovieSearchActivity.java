@@ -18,11 +18,10 @@ import android.widget.TextView;
 
 import com.zoranbogdanovski.searchmoviesapp.R;
 import com.zoranbogdanovski.searchmoviesapp.core.App;
-import com.zoranbogdanovski.searchmoviesapp.model.IResponseModel;
 import com.zoranbogdanovski.searchmoviesapp.model.movie.Movie;
 import com.zoranbogdanovski.searchmoviesapp.model.searchresult.MovieSearchResult;
 import com.zoranbogdanovski.searchmoviesapp.model.searchresult.SearchResult;
-import com.zoranbogdanovski.searchmoviesapp.services.IParsedResponseListener;
+import com.zoranbogdanovski.searchmoviesapp.services.IServiceCallFinishedListener;
 import com.zoranbogdanovski.searchmoviesapp.util.DialogUtils;
 import com.zoranbogdanovski.searchmoviesapp.util.NetworkUtils;
 
@@ -62,12 +61,11 @@ public class MovieSearchActivity extends RoboActivity {
 
     private void startMovieDetails(int movieId) {
         App.getInstance().getServices().startGetMovieInfo(String.valueOf(movieId),
-                new IParsedResponseListener() {
+                new IServiceCallFinishedListener<Movie>() {
                     @Override
-                    public void onParsedResponseFinished(IResponseModel response) {
+                    public void onServiceFinished(Movie response) {
                         Intent intent = new Intent(MovieSearchActivity.this, MovieDetailActivity.class);
-                        Movie responseParsed = (Movie) response;
-                        intent.putExtra(MovieDetailActivity.MODEL_EXTRA, responseParsed);
+                        intent.putExtra(MovieDetailActivity.MODEL_EXTRA, response);
                         startActivity(intent);
                     }
                 });
@@ -186,12 +184,11 @@ public class MovieSearchActivity extends RoboActivity {
             progressView.setVisibility(View.VISIBLE);
             noResultsView.setVisibility(View.GONE);
 
-            app.getServices().startGetMoviesSearchResult(searchInput, new IParsedResponseListener() {
+            app.getServices().startGetMoviesSearchResult(searchInput, new IServiceCallFinishedListener<SearchResult>() {
                 @Override
-                public void onParsedResponseFinished(IResponseModel response) {
+                public void onServiceFinished(SearchResult searchResultResponse) {
                     progressView.setVisibility(View.GONE);
 
-                    SearchResult searchResultResponse = (SearchResult) response;
                     List<MovieSearchResult> results = searchResultResponse.getResults();
 
                     if (listView != null) {

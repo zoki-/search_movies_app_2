@@ -8,9 +8,8 @@ import android.os.Handler;
 
 import com.zoranbogdanovski.searchmoviesapp.R;
 import com.zoranbogdanovski.searchmoviesapp.core.App;
-import com.zoranbogdanovski.searchmoviesapp.model.IResponseModel;
 import com.zoranbogdanovski.searchmoviesapp.model.configuration.Configuration;
-import com.zoranbogdanovski.searchmoviesapp.services.IParsedResponseListener;
+import com.zoranbogdanovski.searchmoviesapp.services.IServiceCallFinishedListener;
 import com.zoranbogdanovski.searchmoviesapp.util.DialogUtils;
 import com.zoranbogdanovski.searchmoviesapp.util.NetworkUtils;
 
@@ -37,12 +36,12 @@ public class SplashScreenActivity extends Activity {
 
                 @Override
                 public void run() {
-                    app.getServices().startGetConfiguration(new IParsedResponseListener() {
+                    app.getServices().startGetConfiguration(new IServiceCallFinishedListener<Configuration>() {
 
                         @Override
-                        public void onParsedResponseFinished(IResponseModel response) {
+                        public void onServiceFinished(Configuration response) {
                             // cache response for as long as app is active
-                            app.setConfiguration((Configuration) response);
+                            app.setConfiguration(response);
                             startActivity(new Intent(SplashScreenActivity.this, MovieSearchActivity.class));
                         }
                     });
