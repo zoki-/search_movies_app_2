@@ -16,6 +16,7 @@ import java.net.URL;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -35,7 +36,7 @@ public class ServiceExecutor<T> {
      * @param serviceCallFinishedListener the listener on service call finished
      */
     public ServiceExecutor(String serviceUrl,
-                           IServiceCallFinishedListener serviceCallFinishedListener) {
+                           IServiceCallFinishedListener<T> serviceCallFinishedListener) {
         this.gson = new GsonBuilder().serializeNulls().create();
         this.serviceUrl = serviceUrl;
         this.serviceCallFinishedListener = serviceCallFinishedListener;
@@ -73,21 +74,17 @@ public class ServiceExecutor<T> {
         Observable.create(onSubscribe)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<T>() {
+                .doOnError(new Action1<Throwable>() {
                     @Override
-                    public void onCompleted() {
-                        // do nothing
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
+                    public void call(Throwable throwable) {
                         throw new RuntimeException("Error while executing service call for url:"
                                 + serviceUrl);
                     }
-
+                })
+                .subscribe(new Action1<T>() {
                     @Override
-                    public void onNext(T s) {
-                        serviceCallFinishedListener.onServiceFinished(s);
+                    public void call(T t) {
+                        serviceCallFinishedListener.onServiceFinished(t);
                     }
                 });
     }
