@@ -51,7 +51,7 @@ public class Services {
      */
     public void startGetConfiguration(final IParsedResponseListener onParsedResponseListener) {
         String url = createUrl("/configuration");
-        ServiceAsyncTaskExecutor executor = new ServiceAsyncTaskExecutor(url,
+        ServiceExecutor executor = new ServiceExecutor(url,
                 new IServiceCallFinishedListener() {
 
                     @Override
@@ -61,7 +61,7 @@ public class Services {
                     }
                 });
 
-        executor.executeServiceTask();
+        executor.executeService();
     }
 
     /**
@@ -79,7 +79,7 @@ public class Services {
             throw new RuntimeException("Bad url query");
         }
         String url = createUrl("/search/movie", "&query=" + encodedQuery);
-        ServiceAsyncTaskExecutor executor = new ServiceAsyncTaskExecutor(url,
+        ServiceExecutor executor = new ServiceExecutor(url,
                 new IServiceCallFinishedListener() {
 
                     @Override
@@ -89,7 +89,7 @@ public class Services {
                     }
                 });
 
-        executor.executeServiceTask();
+        executor.executeService();
     }
 
     /**
@@ -101,7 +101,7 @@ public class Services {
     public void startGetMovieInfo(String movieId,
                                   final IParsedResponseListener onParsedResponseListener) {
         String url = createUrl("/movie/" + movieId);
-        ServiceAsyncTaskExecutor executor = new ServiceAsyncTaskExecutor(url,
+        ServiceExecutor executor = new ServiceExecutor(url,
                 new IServiceCallFinishedListener() {
 
                     @Override
@@ -111,6 +111,6 @@ public class Services {
                     }
                 });
 
-        executor.executeServiceTask();
+        executor.executeService();
     }
 }
