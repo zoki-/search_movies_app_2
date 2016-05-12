@@ -26,7 +26,7 @@ public class ServiceExecutor<T> {
     private static final String LOG_TAG = ServiceExecutor.class.toString();
     private final Gson gson;
     private String serviceUrl;
-    private IServiceCallFinishedListener serviceCallFinishedListener;
+    private IServiceCallFinishedListener<T> serviceCallFinishedListener;
 
     /**
      * Constructor.
@@ -71,7 +71,7 @@ public class ServiceExecutor<T> {
         };
 
         Observable.create(onSubscribe)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<T>() {
                     @Override

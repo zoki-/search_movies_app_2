@@ -21,14 +21,6 @@ public class Services {
     private static final String BASE_URL = "https://api.themoviedb.org/3";
     private static final String API_KEY_QUERY_PARAM = "api_key=5933cc0752c72b28d8d12597444f2f9f";
 
-    private final Gson gson;
-
-    /**
-     * Constructor.
-     */
-    public Services() {
-        gson = new GsonBuilder().serializeNulls().create();
-    }
 
     private String createUrl(String urlPath) {
         return createUrl(urlPath, null);
@@ -71,10 +63,11 @@ public class Services {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Bad url query");
         }
-        String url = createUrl("/search/movie", "&query=" + encodedQuery);
-        ServiceExecutor executor = new ServiceExecutor(url,
-                onServiceCallFinishedListener);
 
+        String url = createUrl("/search/movie", "&query=" + encodedQuery);
+
+        ServiceExecutor<SearchResult> executor = new ServiceExecutor<>(url,
+                onServiceCallFinishedListener);
         executor.executeService(SearchResult.class);
     }
 
@@ -87,9 +80,8 @@ public class Services {
     public void startGetMovieInfo(String movieId,
                                   final IServiceCallFinishedListener onServiceCallFinishedListener) {
         String url = createUrl("/movie/" + movieId);
-        ServiceExecutor executor = new ServiceExecutor(url,
-                onServiceCallFinishedListener);
 
+        ServiceExecutor<Movie> executor = new ServiceExecutor<>(url, onServiceCallFinishedListener);
         executor.executeService(Movie.class);
     }
 }
